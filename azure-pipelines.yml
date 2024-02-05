@@ -36,7 +36,13 @@ stages:
         azureSubscription: 'Java Demos 2'
         KeyVaultName: 'piggymetrics'
         SecretsFilter: '*'
-
+        
+    - task: SonarQubePrepare@4
+      displayName: 'Prepare analysis on SonarQube'
+      inputs:
+        SonarQube: 'SonarQubeConnection'
+        scannerMode: 'Other'
+        
     - task: Bash@3
       displayName: Build container images for each service
       inputs:
@@ -131,3 +137,11 @@ stages:
                 $(Pipeline.Workspace)/kubernetes/5-account-service.yaml
                 $(Pipeline.Workspace)/kubernetes/6-statistics-service.yaml
                 $(Pipeline.Workspace)/kubernetes/7-notification-service.yaml
+                
+          # Add Unit Testing Step
+          - task: Maven@3
+            displayName: 'Run Unit Tests'
+            inputs:
+              mavenPomFile: 'pom.xml'
+              goals: 'test'
+              options: '-Dmaven.test.failure.ignore=true'
