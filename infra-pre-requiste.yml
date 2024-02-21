@@ -18,6 +18,9 @@ parameters:
 - name: vm_pwd
   type: string 
 
+- name: SONAR_TOKEN
+  type: string 
+
 stages:
 - stage: SonarCloud 
   jobs:
@@ -26,13 +29,16 @@ stages:
     pool:
       name: ${{ parameters.poolname }}
     steps:
-    - script: |
-        wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-        sudo apt install unzip -y
-        unzip sonar-scanner-cli-5.0.1.3006-linux.zip -d sonarcloud
-        PATH=~/sonarcloud:$PATH
-        cd  $(Build.SourcesDirectory)/infra-pre-requiste-tf
-        sonar-scanner -Dsonar.organization=vishwacloudlab2024 -Dsonar.projectKey=vishwacloudlab_capstone-proj -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io
+    - task: SonarCloudPrepare@1
+      inputs:
+        SonarCloud: 'sonarcloud-conn'
+        organization: 'vishwacloudlab2024'
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        cliProjectKey: 'vishwacloudlab_capstone-proj'
+        cliProjectName: 'capstone-proj'
+        cliSources: '$(Build.SourcesDirectory)/infra-pre-requiste-tf/'
+
 
 - stage: Install_Terraform  
   jobs:
