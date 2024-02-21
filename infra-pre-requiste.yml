@@ -12,32 +12,22 @@ parameters:
   default: 'Azure Pipelines'
 
 stages:
-- stage: INstall_Terraform  
+- stage: Install_Terraform  
   jobs:
-  - job: INstall_Terraform 
+  - job: Install_Terraform 
     displayName: Agent job 1
     pool:
       name: ${{ parameters.poolname }}
     steps:
-    - script: |
-        if command -v terraform &> /dev/null; then
-          echo "Terraform is installed"
-        else
-          sudo apt update -y
-          sudo apt install unzip -y 
-          sudo apt-get update && sudo apt-get install -y gnupg software-properties-common -y
-          wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
-          gpg --no-default-keyring --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg --fingerprint
-          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-          sudo apt update -y
-          sudo apt-get install terraform -y
-        fi
-      displayName: 'Command Line Script'
+    - task: TerraformInstaller@1
+      inputs:
+        terraformVersion: 'latest'
+      
 
-- stage: Validate_Terraform
+- stage: Infra_Pre_Validate_Tf
   jobs:
-  - job: Validate_Terraform
-    displayName: Agent job 3
+  - job: Infra_Pre_Validate_Tf
+    displayName: Infra_Pre_Validate_Tf
     pool:
       #name: Azure Pipelines
       name: ${{ parameters.poolname }}
@@ -45,7 +35,7 @@ stages:
     - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV4@4
       displayName: Init
       inputs:
-        backendServiceArm: 'azure-rg-vishwaawsac'
+        backendServiceArm: 'vcl-SP-conn'
         backendAzureRmResourceGroupName: 'docker-app-vishwa_group'
         backendAzureRmStorageAccountName: vishwa2024tfstate
         backendAzureRmContainerName: tfstatefiles
@@ -55,14 +45,14 @@ stages:
       displayName: validate
       inputs:
         command: validate
-        environmentServiceNameAzureRM: 'azure-rg-vishwaawsac'
+        environmentServiceNameAzureRM: 'vcl-SP-conn'
         workingDirectory: $(Build.SourcesDirectory)/infra-pre-requiste-tf
 
-- stage: Apply_Terraform
-  dependsOn: Validate_Terraform
+- stage: Infra_Pre_Apply_Tf
+  dependsOn: Infra_Pre_Validate_Tf
   jobs:
-  - job: Plan_Terraform 
-    displayName: Agent job 4
+  - job: Infra_Pre_Apply_Tf
+    displayName: Job_3
     #timeoutInMinutes: 5
     pool:
       #name: Azure Pipelines
