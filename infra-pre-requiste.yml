@@ -61,7 +61,7 @@ stages:
     - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV4@4
       displayName: Init
       inputs:
-        backendServiceArm: 'azure-rg-vishwaawsac'
+        backendServiceArm: 'vcl-SP-conn'
         backendAzureRmResourceGroupName: 'docker-app-vishwa_group'
         backendAzureRmStorageAccountName: vishwa2024tfstate
         backendAzureRmContainerName: tfstatefiles
@@ -73,7 +73,7 @@ stages:
       inputs:
         command: plan
         #commandOptions: '-var client_id=${{ parameters.clients_id }}  -var client_secret=${{ parameters.clients_secret }}'
-        environmentServiceNameAzureRM: 'azure-rg-vishwaawsac'
+        environmentServiceNameAzureRM: 'vcl-SP-conn'
         workingDirectory: $(Build.SourcesDirectory)/infra-pre-requiste-tf
 
     - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV4@4
@@ -81,5 +81,5 @@ stages:
       inputs:
         command: ${{ parameters.createdestroy }}
         #commandOptions: '-var client_id=${{ parameters.clients_id }}  -var client_secret=${{ parameters.clients_secret }}'
-        environmentServiceNameAzureRM: 'azure-rg-vishwaawsac'
+        environmentServiceNameAzureRM: 'vcl-SP-conn'
         workingDirectory: $(Build.SourcesDirectory)/infra-pre-requiste-tf
