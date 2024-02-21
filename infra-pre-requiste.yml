@@ -26,8 +26,6 @@ stages:
     pool:
       name: ${{ parameters.poolname }}
     steps:
-    - checkout: self
-      fetchDepth: 0
     - script: |
         wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
         sudo apt install unzip -y
