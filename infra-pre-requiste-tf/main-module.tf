@@ -77,7 +77,7 @@ resource "azurerm_storage_account" "main" {
   location                 = "East US"  
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  min_tls_version          = TLSv1.2
+  min_tls_version          = "TLS1_2"
 }
 
 resource "azurerm_storage_container" "storage_container" {
