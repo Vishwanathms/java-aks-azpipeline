@@ -17,7 +17,6 @@ parameters:
 
 - name: vm_pwd
   type: string 
-  isSecret: true
 
 stages:
 - stage: Install_Terraform  
