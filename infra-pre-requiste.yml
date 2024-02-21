@@ -19,6 +19,23 @@ parameters:
   type: string 
 
 stages:
+- stage: SonarCloud 
+  jobs:
+  - job: Code_Analysis 
+    displayName: Agent job 1
+    pool:
+      name: ${{ parameters.poolname }}
+    steps:
+    - checkout: self
+      fetchDepth: 0
+    - script: |
+        wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+        sudo apt install unzip -y
+        unzip sonar-scanner-cli-5.0.1.3006-linux.zip -d sonarcloud
+        PATH=~/sonarcloud:$PATH
+        cd  $(Build.SourcesDirectory)/infra-pre-requiste-tf
+        sonar-scanner -Dsonar.organization=vishwacloudlab2024 -Dsonar.projectKey=vishwacloudlab_capstone-proj -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io
+
 - stage: Install_Terraform  
   jobs:
   - job: Install_Terraform 
