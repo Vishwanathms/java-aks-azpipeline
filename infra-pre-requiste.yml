@@ -22,24 +22,6 @@ parameters:
   type: string 
 
 stages:
-- stage: SonarCloud 
-  jobs:
-  - job: Code_Analysis 
-    displayName: Agent job 1
-    pool:
-      name: ${{ parameters.poolname }}
-    steps:
-    - task: SonarCloudPrepare@1
-      inputs:
-        SonarCloud: 'sonarcloud-conn'
-        organization: 'vishwacloudlab2024'
-        scannerMode: 'CLI'
-        configMode: 'manual'
-        cliProjectKey: 'vishwacloudlab_capstone-proj'
-        cliProjectName: 'capstone-proj'
-        cliSources: '$(Build.SourcesDirectory)/infra-pre-requiste-tf/'
-
-
 - stage: Install_Terraform  
   jobs:
   - job: Install_Terraform 
@@ -111,3 +93,21 @@ stages:
         commandOptions: '-var admin_username=${{ parameters.admin_username }}  -var vm_pwd=${{ parameters.vm_pwd }}'
         environmentServiceNameAzureRM: 'vcl-SP-conn'
         workingDirectory: $(Build.SourcesDirectory)/infra-pre-requiste-tf
+
+
+- stage: SonarCloud 
+  jobs:
+  - job: Code_Analysis 
+    displayName: Agent job 1
+    pool:
+      name: ${{ parameters.poolname }}
+    steps:
+    - task: SonarCloudPrepare@1
+      inputs:
+        SonarCloud: 'sonarcloud-conn'
+        organization: 'vishwacloudlab2024'
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        cliProjectKey: 'vishwacloudlab_capstone-proj'
+        cliProjectName: 'capstone-proj'
+        cliSources: '$(Build.SourcesDirectory)/infra-pre-requiste-tf/'
