@@ -11,6 +11,14 @@ parameters:
   type: string 
   default: 'Azure Pipelines'
 
+- name: admin_username
+  type: string 
+  default: 'azureuser'
+
+- name: vm_pwd
+  type: string 
+  isSecret: true
+
 stages:
 - stage: Install_Terraform  
   jobs:
@@ -72,7 +80,7 @@ stages:
       displayName: Plan
       inputs:
         command: plan
-        #commandOptions: '-var client_id=${{ parameters.clients_id }}  -var client_secret=${{ parameters.clients_secret }}'
+        commandOptions: '-var admin_username=${{ parameters.admin_username }}  -var vm_pwd=${{ parameters.vm_pwd }}'
         environmentServiceNameAzureRM: 'vcl-SP-conn'
         workingDirectory: $(Build.SourcesDirectory)/infra-pre-requiste-tf
 
@@ -80,6 +88,6 @@ stages:
       displayName: Apply Or Destroy
       inputs:
         command: ${{ parameters.createdestroy }}
-        #commandOptions: '-var client_id=${{ parameters.clients_id }}  -var client_secret=${{ parameters.clients_secret }}'
+        commandOptions: '-var admin_username=${{ parameters.admin_username }}  -var vm_pwd=${{ parameters.vm_pwd }}'
         environmentServiceNameAzureRM: 'vcl-SP-conn'
         workingDirectory: $(Build.SourcesDirectory)/infra-pre-requiste-tf
