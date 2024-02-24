@@ -155,6 +155,64 @@ resource "azurerm_network_interface_security_group_association" "mySecGroupAssoc
     network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
+resource "null_resource" "Instal-az-agent" {
+
+  /*triggers = {
+    always_run = timestamp()
+  }*/
+  connection {
+      type = "ssh"
+      user = var.admin_username
+      password = var.vm_pwd
+      #host = azurerm_virtual_machine.main[0].public_ip_address
+      host = azurerm_public_ip.pips[0].ip_address
+      timeout = "60s"
+      agent = false  
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir myagent",
+      "wget -P myagent ${var.agent-url}",
+      "tar zxvf myagent/vsts*.tar.gz",
+      "./config.sh --unattended --url ${var.AZP_URL} --token ${var.AZP_TOKEN} --agent ${var.AZP_AGENT_NAME} --pool ${var.AZP_POOL}",
+      "sleep 120",
+      "nohup ./run.sh &",
+    ]
+  }
+  depends_on = [ azurerm_network_security_group.nsg, azurerm_virtual_machine.main ]
+}
+
+resource "null_resource" "Instal-ansible" {
+
+  triggers = {
+    always_run = timestamp()
+  }
+  connection {
+      type = "ssh"
+      user = var.admin_username
+      password = var.vm_pwd
+      #host = azurerm_virtual_machine.main[0].public_ip_address
+      host = azurerm_public_ip.pips[0].ip_address
+      timeout = "60s"
+      agent = false  
+  }
+  provisioner "file" {
+    source      = "ansi-code/scripts.sh"
+    destination = "scripts.sh"
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt-add-repository ppa:ansible/ansible -y",
+      "sudo apt update -y",
+      "sudo apt install ansible -y",
+      "sed -i 's/\r$//' scripts.sh",
+      "chmod 770 scripts.sh",
+      "./scripts.sh ${var.vm_pwd}"
+    ]
+  }
+  depends_on = [ azurerm_network_security_group.nsg, azurerm_virtual_machine.main ]
+}
 
 output "pip" {
   value = azurerm_public_ip.pips[0].ip_address
