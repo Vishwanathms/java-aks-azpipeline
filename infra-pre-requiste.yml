@@ -22,6 +22,24 @@ parameters:
   type: string 
 
 stages:
+- stage: SonarCloud 
+  jobs:
+  - job: Code_Analysis 
+    displayName: Agent job 1
+    pool:
+      name: ${{ parameters.poolname }}
+    steps:
+    - task: SonarCloudPrepare@1
+      inputs:
+        SonarCloud: 'sonarcloud-conn'
+        organization: 'vishwacloudlab2024'
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        cliProjectKey: 'vishwacloudlab_capstone-proj'
+        cliProjectName: 'capstone-proj'
+        cliSources: '$(Build.SourcesDirectory)/infra-pre-requiste-tf/'
+
+
 - stage: Install_Terraform  
   jobs:
   - job: Install_Terraform 
@@ -32,6 +50,20 @@ stages:
     - task: TerraformInstaller@1
       inputs:
         terraformVersion: 'latest'
+    - script: |
+        if command -v terraform &> /dev/null; then
+          echo "Terraform is installed"
+        else
+          sudo apt update -y
+          sudo apt install unzip -y 
+          sudo apt-get update && sudo apt-get install -y gnupg software-properties-common -y
+          wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
+          gpg --no-default-keyring --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg --fingerprint
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+          sudo apt update -y
+          sudo apt-get install terraform -y
+        fi
+      displayName: 'Command Line Script'
       
 
 - stage: Infra_Pre_Validate_Tf
@@ -95,19 +127,3 @@ stages:
         workingDirectory: $(Build.SourcesDirectory)/infra-pre-requiste-tf
 
 
-- stage: SonarCloud 
-  jobs:
-  - job: Code_Analysis 
-    displayName: Agent job 1
-    pool:
-      name: ${{ parameters.poolname }}
-    steps:
-    - task: SonarCloudPrepare@1
-      inputs:
-        SonarCloud: 'sonarcloud-conn'
-        organization: 'vishwacloudlab2024'
-        scannerMode: 'CLI'
-        configMode: 'manual'
-        cliProjectKey: 'vishwacloudlab_capstone-proj'
-        cliProjectName: 'capstone-proj'
-        cliSources: '$(Build.SourcesDirectory)/infra-pre-requiste-tf/'

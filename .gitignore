@@ -16,8 +16,11 @@ target/
 **/*.settings
 
 # K8S generated files
-kubernetes/deploy/
-piggymetrics/
+#kubernetes/deploy/
+#piggymetrics/
 
 # Scripts
-.scripts/
+#.scripts/
+
+.terraform
+.terraform*
